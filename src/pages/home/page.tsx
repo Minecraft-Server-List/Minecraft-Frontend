@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import api from '@/api/axios'; 
 import LoginModal from '@/components/feature/LoginModal';
 import AddServerModal from '@/components/feature/AddServerModal';
+import Footer from '../servers/components/Footer';
 
 interface MinecraftServer {
-  id: number;
+  serverId: number;
   name: string;
   imageUrl?: string;
   currentPlayers: number;
@@ -137,7 +138,7 @@ export default function Home() {
               <div className="col-span-3 py-10">데이터 로딩 중...</div>
             ) : (
               featuredServers.map((server) => (
-                <Link key={server.id} to={`/servers/${server.id}`} className="group">
+                <Link key={server.serverId} to={`/servers/${server.serverId}`} className="group">
                   <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                     <div className="relative w-full h-56 overflow-hidden">
                       <img 
@@ -167,7 +168,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Top Ranked Servers</h2>
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
             {topServers.map((server, index) => (
-              <div key={server.id} className="flex items-center gap-6 p-6 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+              <div key={server.serverId} className="flex items-center gap-6 p-6 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
                 <div className={`flex items-center justify-center w-12 h-12 rounded-xl font-bold text-lg ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
                   #{index + 1}
                 </div>
@@ -175,77 +176,15 @@ export default function Home() {
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{server.name}</h3>
                   <div className="text-sm text-gray-600">{server.currentPlayers} / {server.maxPlayers} online</div>
                 </div>
-                <Link to={`/servers/${server.id}`} className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700">Detail</Link>
+                <Link to={`/servers/${server.serverId}`} className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700">Detail</Link>
               </div>
             ))}
           </div>
         </div>
       </section>
-
+        
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <img 
-                  src="https://public.readdy.ai/ai/img_res/e131358c-8d1e-4f3d-ab52-30b4e08151d5.png" 
-                  alt="CraftConnect" 
-                  className="w-10 h-10 object-contain"
-                />
-                <span className="text-xl font-bold text-white">CraftConnect</span>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                The ultimate platform to discover and connect with the best Minecraft servers worldwide.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-base font-bold text-white mb-4">Servers</h4>
-              <ul className="space-y-2.5 text-sm">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Browse All</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Top Ranked</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">New Servers</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Add Server</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-base font-bold text-white mb-4">Community</h4>
-              <ul className="space-y-2.5 text-sm">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Forums</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Discord</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">News</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Events</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-base font-bold text-white mb-4">Support</h4>
-              <ul className="space-y-2.5 text-sm">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Help Center</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Contact Us</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors cursor-pointer">Privacy Policy</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-400">
-              © 2025 CraftConnect. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Powered by Readdy</a>
-              <div className="flex items-center gap-4">
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-twitter-x-line text-lg"></i></a>
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-discord-line text-lg"></i></a>
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-youtube-line text-lg"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
 
       {/* Modals */}
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />

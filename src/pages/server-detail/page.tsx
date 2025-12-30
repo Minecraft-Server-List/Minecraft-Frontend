@@ -25,7 +25,7 @@ interface Staff {
 }
 
 interface ServerDetail {
-  id: number;
+  serverId: number;
   name: string;
   description: string;
   domain: string;
@@ -329,7 +329,7 @@ export default function ServerDetailPage() {
                     {server.domain}
                   </div>
                   <button
-                    onClick={() => copyToClipboard(server.ip)}
+                    onClick={() => copyToClipboard(server.domain)}
                     className="w-11 h-11 flex items-center justify-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex-shrink-0"
                     title="복사"
                   >
