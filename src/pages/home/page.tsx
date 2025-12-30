@@ -1,18 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import LoginModal from '../../components/feature/LoginModal';
-import AddServerModal from '../../components/feature/AddServerModal';
+import api from '@/api/axios'; 
+import LoginModal from '@/components/feature/LoginModal';
+import AddServerModal from '@/components/feature/AddServerModal';
+
+interface MinecraftServer {
+  id: number;
+  name: string;
+  imageUrl?: string;
+  currentPlayers: number;
+  maxPlayers: number;
+  version: string;
+  status: 'ONLINE' | 'OFFLINE';
+}
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAddServerModal, setShowAddServerModal] = useState(false);
+  
+  const [featuredServers, setFeaturedServers] = useState<MinecraftServer[]>([]);
+  const [topServers, setTopServers] = useState<MinecraftServer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/api/servers');
+        const data = response.data;
+        setFeaturedServers(data.slice(0, 3)); 
+        setTopServers(data.slice(0, 5));     
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchHomeData();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      window.REACT_APP_NAVIGATE(`/servers?search=${encodeURIComponent(searchQuery)}`);
+      window.location.href = `/servers?search=${encodeURIComponent(searchQuery)}`;
     } else {
-      window.REACT_APP_NAVIGATE('/servers');
+      window.location.href = '/servers';
     }
   };
 
@@ -21,44 +53,6 @@ export default function Home() {
       handleSearch();
     }
   };
-
-  const featuredServers = [
-    {
-      id: 1,
-      name: 'SurvivalCraft',
-      image: 'https://readdy.ai/api/search-image?query=minecraft%20survival%20server%20landscape%20with%20wooden%20houses%20and%20green%20forests%20simple%20clean%20background%20game%20style%20illustration&width=400&height=300&seq=survival1&orientation=landscape',
-      players: '2,847',
-      version: '1.20.4',
-      type: 'Survival',
-      color: 'bg-emerald-100'
-    },
-    {
-      id: 2,
-      name: 'CreativeBuild',
-      image: 'https://readdy.ai/api/search-image?query=minecraft%20creative%20building%20server%20with%20colorful%20modern%20structures%20and%20blue%20sky%20simple%20clean%20background%20game%20style%20illustration&width=400&height=300&seq=creative1&orientation=landscape',
-      players: '1,523',
-      version: '1.20.4',
-      type: 'Creative',
-      color: 'bg-sky-100'
-    },
-    {
-      id: 3,
-      name: 'AdventureQuest',
-      image: 'https://readdy.ai/api/search-image?query=minecraft%20adventure%20quest%20server%20with%20medieval%20castle%20and%20mountains%20simple%20clean%20background%20game%20style%20illustration&width=400&height=300&seq=adventure1&orientation=landscape',
-      players: '3,192',
-      version: '1.20.4',
-      type: 'Adventure',
-      color: 'bg-amber-100'
-    }
-  ];
-
-  const topServers = [
-    { rank: 1, name: 'HyperCraft Network', players: '5,234', votes: '12,847' },
-    { rank: 2, name: 'PixelMine Server', players: '4,891', votes: '11,203' },
-    { rank: 3, name: 'SkyBlock Legends', players: '4,567', votes: '10,892' },
-    { rank: 4, name: 'PvP Arena Pro', players: '3,982', votes: '9,654' },
-    { rank: 5, name: 'Faction Wars', players: '3,745', votes: '8,932' }
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -105,17 +99,12 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/20"></div>
         
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-        </div>
-
         <div className="relative max-w-5xl mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
             Find Your Perfect Minecraft Server
           </h1>
           <p className="text-xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Explore thousands of Minecraft servers and connect with players worldwide. Discover new adventures and build your legacy.
+            Explore thousands of Minecraft servers and connect with players worldwide.
           </p>
 
           <div className="max-w-3xl mx-auto">
@@ -136,83 +125,38 @@ export default function Home() {
               </button>
             </div>
           </div>
-
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 text-white">
-            <div className="flex items-center gap-2">
-              <i className="ri-server-line text-2xl text-emerald-400"></i>
-              <span className="text-base"><strong className="font-semibold">15,000+</strong> Servers</span>
-            </div>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <i className="ri-user-line text-2xl text-emerald-400"></i>
-              <span className="text-base"><strong className="font-semibold">2M+</strong> Players</span>
-            </div>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <div className="flex items-center gap-2">
-              <i className="ri-global-line text-2xl text-emerald-400"></i>
-              <span className="text-base"><strong className="font-semibold">150+</strong> Countries</span>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Featured Servers */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Servers</h2>
-            <p className="text-lg text-gray-600">Handpicked servers with the best gameplay experience</p>
-          </div>
-
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-12">Featured Servers</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredServers.map((server) => (
-              <Link 
-                key={server.id}
-                to={`/servers/${server.id}`}
-                className="group cursor-pointer"
-              >
-                <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                  <div className="relative w-full h-56 overflow-hidden">
-                    <img 
-                      src={server.image}
-                      alt={server.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 right-4">
-                      <span className="px-3 py-1.5 bg-white/95 backdrop-blur-sm text-sm font-medium text-gray-900 rounded-full">
-                        {server.type}
-                      </span>
+            {isLoading ? (
+              <div className="col-span-3 py-10">데이터 로딩 중...</div>
+            ) : (
+              featuredServers.map((server) => (
+                <Link key={server.id} to={`/servers/${server.id}`} className="group">
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div className="relative w-full h-56 overflow-hidden">
+                      <img 
+                        src={server.imageUrl ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.imageUrl}` : 'https://via.placeholder.com/400x300'} 
+                        alt={server.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600 transition-colors">
-                      {server.name}
-                    </h3>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <i className="ri-user-line text-lg"></i>
-                        <span className="font-medium">{server.players} players</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <i className="ri-gamepad-line text-lg"></i>
-                        <span className="font-medium">{server.version}</span>
+                    <div className="p-6 text-left">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600">{server.name}</h3>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 font-medium">{server.currentPlayers.toLocaleString()} players</span>
+                        <span className="text-gray-600 font-medium">{server.version}</span>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link 
-              to="/servers"
-              className="inline-block px-8 py-3.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors whitespace-nowrap cursor-pointer"
-            >
-              View All Servers
-            </Link>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -220,105 +164,20 @@ export default function Home() {
       {/* Top Ranked Servers */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Top Ranked Servers</h2>
-            <p className="text-lg text-gray-600">Most popular servers voted by the community</p>
-          </div>
-
+          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Top Ranked Servers</h2>
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
             {topServers.map((server, index) => (
-              <Link
-                key={server.rank}
-                to={`/servers/${server.rank}`}
-                className="flex items-center gap-6 p-6 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 last:border-b-0"
-              >
-                <div className={`flex items-center justify-center w-12 h-12 rounded-xl font-bold text-lg ${
-                  server.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                  server.rank === 2 ? 'bg-gray-200 text-gray-700' :
-                  server.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  #{server.rank}
+              <div key={server.id} className="flex items-center gap-6 p-6 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+                <div className={`flex items-center justify-center w-12 h-12 rounded-xl font-bold text-lg ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}`}>
+                  #{index + 1}
                 </div>
-                
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{server.name}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span className="flex items-center gap-1.5">
-                      <i className="ri-user-line"></i>
-                      {server.players} online
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <i className="ri-heart-line"></i>
-                      {server.votes} votes
-                    </span>
-                  </div>
+                  <div className="text-sm text-gray-600">{server.currentPlayers} / {server.maxPlayers} online</div>
                 </div>
-
-                <button className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors whitespace-nowrap">
-                  Vote
-                </button>
-              </Link>
+                <Link to={`/servers/${server.id}`} className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700">Detail</Link>
+              </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Browse by Category</h2>
-            <p className="text-lg text-gray-600">Find servers that match your playstyle</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: 'Survival', icon: 'ri-sword-line', color: 'emerald' },
-              { name: 'Creative', icon: 'ri-brush-line', color: 'blue' },
-              { name: 'PvP', icon: 'ri-shield-line', color: 'red' },
-              { name: 'Skyblock', icon: 'ri-cloud-line', color: 'cyan' },
-              { name: 'Prison', icon: 'ri-lock-line', color: 'orange' },
-              { name: 'Faction', icon: 'ri-team-line', color: 'purple' },
-              { name: 'Minigames', icon: 'ri-gamepad-line', color: 'pink' },
-              { name: 'Roleplay', icon: 'ri-user-star-line', color: 'indigo' }
-            ].map((category) => (
-              <Link
-                key={category.name}
-                to={`/servers?category=${category.name.toLowerCase()}`}
-                className={`group p-8 bg-${category.color}-50 rounded-2xl hover:bg-${category.color}-100 transition-all duration-300 cursor-pointer text-center transform hover:-translate-y-1`}
-              >
-                <div className={`w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-${category.color}-100 group-hover:bg-${category.color}-200 rounded-xl transition-colors`}>
-                  <i className={`${category.icon} text-3xl text-${category.color}-600`}></i>
-                </div>
-                <h3 className={`text-lg font-bold text-gray-900 group-hover:text-${category.color}-600 transition-colors`}>
-                  {category.name}
-                </h3>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-emerald-600 to-emerald-700">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Own a Minecraft Server?
-          </h2>
-          <p className="text-xl text-emerald-100 mb-10 leading-relaxed">
-            List your server on CraftConnect and reach thousands of potential players. Boost your community and grow your server today.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button 
-              onClick={() => setShowAddServerModal(true)}
-              className="px-8 py-4 bg-white text-emerald-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer text-base"
-            >
-              Add Your Server
-            </button>
-            <button className="px-8 py-4 bg-emerald-800 text-white font-semibold rounded-lg hover:bg-emerald-900 transition-colors whitespace-nowrap cursor-pointer text-base">
-              Learn More
-            </button>
           </div>
         </div>
       </section>
@@ -377,19 +236,11 @@ export default function Home() {
               © 2025 CraftConnect. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
-              <a href="https://readdy.ai/?origin=logo" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors cursor-pointer">
-                Powered by Readdy
-              </a>
+              <a href="#" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Powered by Readdy</a>
               <div className="flex items-center gap-4">
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors cursor-pointer">
-                  <i className="ri-twitter-x-line text-lg"></i>
-                </a>
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors cursor-pointer">
-                  <i className="ri-discord-line text-lg"></i>
-                </a>
-                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors cursor-pointer">
-                  <i className="ri-youtube-line text-lg"></i>
-                </a>
+                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-twitter-x-line text-lg"></i></a>
+                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-discord-line text-lg"></i></a>
+                <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors"><i className="ri-youtube-line text-lg"></i></a>
               </div>
             </div>
           </div>
