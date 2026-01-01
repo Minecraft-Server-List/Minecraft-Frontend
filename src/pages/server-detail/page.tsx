@@ -37,7 +37,7 @@ interface ServerDetail {
   
   longDescription?: string;
   bannerImage?: string;
-  logoImage?: string;
+  imageUrl?: string;
   website?: string;
   discord?: string;
   uptime?: string;
