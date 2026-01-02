@@ -1,47 +1,44 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '@/api/axios'; // 절대 경로 설정
+import api from '@/api/axios'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ServerCard from './components/ServerCard';
 import FilterSidebar from './components/FilterSidebar';
 
-// 서버 데이터 타입 정의
+// [리팩토링] SQL 쿼리문 컬럼명에 맞춘 인터페이스
 interface MinecraftServer {
-  serverId: number;
-  name: string;
-  description: string;
-  imageUrl?: string;
-  currentPlayers: number;
-  maxPlayers: number;
-  version: string;
-  category: string;
-  votes: number;
-  status: 'ONLINE' | 'OFFLINE';
-  tags?: string[];
+  serverId: number;       // server_id
+  name: string;           // name
+  description: string;    // description
+  status: 'ONLINE' | 'OFFLINE'; // status
+  version: string;        // version
+  domain: string;         // domain
+  currentPlayers: number; // current_players (CamelCase)
+  maxPlayers: number;     // max_players
+  votes: number;          // likes_count 테이블 연동 데이터
+  fileName?: string;      // server_image 테이블 연동 데이터
+  category?: string;      // server_category Join 데이터
 }
 
 export default function ServersPage() {
   const [searchParams] = useSearchParams();
   
-  // 상태 관리
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [selectedVersion, setSelectedVersion] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [showFilters, setShowFilters] = useState(false);
   
-  // 서버 데이터 상태
   const [allServers, setAllServers] = useState<MinecraftServer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. 백엔드에서 데이터 가져오기
+  // 1. 백엔드 데이터 가져오기
   useEffect(() => {
     const fetchServers = async () => {
       try {
         setIsLoading(true);
-        // 전체 서버 목록을 가져옵니다. 
-        // (나중에 백엔드에서 검색/필터 API를 만들면 쿼리 파라미터를 붙여서 호출하도록 수정 가능)
+        // 전체 서버 목록을 가져옵니다.
         const response = await api.get('/api/servers');
         setAllServers(response.data);
       } catch (error) {
@@ -54,7 +51,7 @@ export default function ServersPage() {
     fetchServers();
   }, []);
 
-  // 2. 프론트엔드 측 필터링 로직 (백엔드 API가 검색 기능을 지원하지 않을 경우 대비)
+  // 2. [리팩토링] 필터링 로직 - SQL 필드명에 맞게 안전하게 수정
   const filteredServers = allServers.filter(server => {
     const matchesSearch = (server.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (server.description || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -65,7 +62,7 @@ export default function ServersPage() {
     return matchesSearch && matchesCategory && matchesVersion;
   });
 
-  // 3. 정렬 로직
+  // 3. [리팩토링] 정렬 로직 - currentPlayers 등 변경된 필드 적용
   const sortedServers = [...filteredServers].sort((a, b) => {
     switch (sortBy) {
       case 'popular':
@@ -83,7 +80,7 @@ export default function ServersPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Header */}
+      {/* Header - 스타일 유지 */}
       <div className="bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -93,7 +90,6 @@ export default function ServersPage() {
             {isLoading ? '서버를 찾는 중...' : `${filteredServers.length}개의 서버를 찾았습니다`}
           </p>
 
-          {/* Search Bar */}
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 bg-white rounded-xl p-2 shadow-xl">
               <i className="ri-search-line text-xl text-gray-400 ml-3"></i>
@@ -119,7 +115,6 @@ export default function ServersPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex gap-8">
-          {/* Sidebar Filters - Desktop */}
           <div className="hidden lg:block w-64 flex-shrink-0">
             <FilterSidebar
               selectedCategory={selectedCategory}
@@ -129,9 +124,7 @@ export default function ServersPage() {
             />
           </div>
 
-          {/* Main Content */}
           <div className="flex-1">
-            {/* Toolbar */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -155,7 +148,6 @@ export default function ServersPage() {
               </div>
             </div>
 
-            {/* Mobile Filters */}
             {showFilters && (
               <div className="lg:hidden mb-6 p-6 bg-white rounded-xl shadow-lg">
                 <FilterSidebar
@@ -169,10 +161,11 @@ export default function ServersPage() {
 
             {/* Server Grid */}
             {isLoading ? (
-              <div className="text-center py-20">데이터를 야미하게 불러오는 중...</div>
+              <div className="text-center py-20 text-gray-500">데이터를 야미하게 불러오는 중...</div>
             ) : sortedServers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {sortedServers.map((server) => (
+                  /* [리팩토링] key값을 SQL PK인 serverId로 매핑 */
                   <ServerCard key={server.serverId} server={server} />
                 ))}
               </div>
