@@ -4,15 +4,15 @@ interface Server {
   serverId: number;
   name: string;
   description: string;
-  imageUrl: string;
+  status: string;
+  version: string;
   currentPlayers: number;
   maxPlayers: number;
-  version: string;
-  category: string;
-  votes: number;
-  status: string;
-  tags: string[];
-  uptime: string;
+  fileName?: string;
+  votes?: number;
+  categories?: string[];
+  tags?: string[];
+  uptime?: string;
 }
 
 interface ServerCardProps {
@@ -20,31 +20,33 @@ interface ServerCardProps {
 }
 
 export default function ServerCard({ server }: ServerCardProps) {
-  // 1. 숫자 연산 전 방어 코드 (0으로 나누기 방지 및 undefined 대응)
-  const currentPlayers = server.currentPlayers || 0;
-  const maxPlayers = server.maxPlayers || 1; // 0으로 나누기 방지
-  const playerPercentage = (currentPlayers / maxPlayers) * 100;
+  const current = server.currentPlayers || 0;
+  const max = server.maxPlayers || 1;
+  const playerPercentage = (current / max) * 100;
 
+  const serverImg = server.fileName 
+    ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` 
+    : 'https://via.placeholder.com/400x300?text=Minecraft+Server';
+    
   return (
     <Link
       to={`/servers/${server.serverId}`}
       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
     >
-      {/* Image */}
       <div className="relative w-full h-48 overflow-hidden bg-gray-200">
         <img
-          src={server.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image'}
-          alt={server.name || 'Server Image'}
+          src={serverImg}
+          alt={server.name}
           className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3">
           <span className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full">
-            {server.category || '일반'}
+            {server.categories && server.categories.length > 0 ? server.categories[0] : '서버'}
           </span>
         </div>
         <div className="absolute top-3 right-3">
           <span className={`px-3 py-1.5 text-xs font-bold rounded-full ${
-            server.status?.toLowerCase() === 'online' 
+            server.status?.toUpperCase() === 'ONLINE' 
               ? 'bg-green-500 text-white' 
               : 'bg-red-500 text-white'
           }`}>
@@ -54,7 +56,6 @@ export default function ServerCard({ server }: ServerCardProps) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-5">
         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors line-clamp-1">
           {server.name || '이름 없는 서버'}
@@ -64,25 +65,23 @@ export default function ServerCard({ server }: ServerCardProps) {
           {server.description || '서버 설명이 없습니다.'}
         </p>
 
-        {/* Tags - slice 에러 해결 포인트 */}
+        {/* 태그 부분도 categories 리스트를 활용하면 더 정확합니다 */}
         <div className="flex flex-wrap gap-2 mb-4 h-7 overflow-hidden">
-          {(server.tags || []).slice(0, 3).map((tag, index) => (
+          {(server.categories || []).slice(0, 3).map((cat, index) => (
             <span
-              key={`${server.serverId}-tag-${index}`}
+              key={`${server.serverId}-cat-${index}`}
               className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md"
             >
-              {tag}
+              {cat}
             </span>
           ))}
         </div>
 
-        {/* Stats */}
         <div className="space-y-3 mb-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">플레이어</span>
             <span className="font-bold text-gray-900">
-              {/* toLocaleString 에러 해결 포인트 */}
-              {(currentPlayers).toLocaleString()} / {(maxPlayers).toLocaleString()}
+              {current.toLocaleString()} / {max.toLocaleString()}
             </span>
           </div>
           
@@ -96,7 +95,7 @@ export default function ServerCard({ server }: ServerCardProps) {
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600">
               <i className="ri-gamepad-line"></i>
-              <span>{server.version || '버전 정보 없음'}</span>
+              <span>{server.version || '1.20.4'}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <i className="ri-heart-line"></i>
@@ -105,7 +104,6 @@ export default function ServerCard({ server }: ServerCardProps) {
           </div>
         </div>
 
-        {/* Action Button */}
         <button className="w-full py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors whitespace-nowrap">
           서버 정보 보기
         </button>
