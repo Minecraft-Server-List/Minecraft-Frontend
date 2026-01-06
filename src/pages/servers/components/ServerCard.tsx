@@ -10,7 +10,7 @@ interface Server {
   maxPlayers: number;
   fileName?: string;
   votes?: number;
-  category?: string;
+  categories?: string[];
   tags?: string[];
   uptime?: string;
 }
@@ -41,7 +41,7 @@ export default function ServerCard({ server }: ServerCardProps) {
         />
         <div className="absolute top-3 left-3">
           <span className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full">
-            {server.category || '서버'}
+            {server.categories && server.categories.length > 0 ? server.categories[0] : '서버'}
           </span>
         </div>
         <div className="absolute top-3 right-3">
@@ -65,13 +65,14 @@ export default function ServerCard({ server }: ServerCardProps) {
           {server.description || '서버 설명이 없습니다.'}
         </p>
 
+        {/* 태그 부분도 categories 리스트를 활용하면 더 정확합니다 */}
         <div className="flex flex-wrap gap-2 mb-4 h-7 overflow-hidden">
-          {(server.tags || []).slice(0, 3).map((tag, index) => (
+          {(server.categories || []).slice(0, 3).map((cat, index) => (
             <span
-              key={`${server.serverId}-tag-${index}`}
+              key={`${server.serverId}-cat-${index}`}
               className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md"
             >
-              {tag}
+              {cat}
             </span>
           ))}
         </div>
