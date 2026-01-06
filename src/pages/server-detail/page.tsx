@@ -4,7 +4,6 @@ import api from '@/api/axios';
 import Navbar from '../servers/components/Navbar';
 import Footer from '../servers/components/Footer';
 
-// 인터페이스는 SQL 필드명에 맞춰 유지합니다.
 interface ServerDetail {
   serverId: number;
   name: string;
@@ -15,9 +14,9 @@ interface ServerDetail {
   maxPlayers: number;
   version: string;
   status: string;
-  fileName?: string; // server_image 테이블 연동
-  likeCount?: number; // likes_count 테이블 연동
-  categories?: string[];
+  fileName?: string;    // DTO의 fileName 필드와 매칭
+  likeCount?: number;   
+  categories?: string[]; // DTO의 categories (List<String>)와 매칭
   website?: string;
   discord?: string;
   uptime?: string;
@@ -60,16 +59,19 @@ export default function ServerDetailPage() {
 
   const playerPercentage = ((server.currentPlayers || 0) / (server.maxPlayers || 1)) * 100;
 
+  // 🔥 이미지 경로를 유시영 님의 백엔드 설정(/images/)에 맞춤
+  const imageUrl = server.fileName 
+    ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` 
+    : 'https://via.placeholder.com/1200x400';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Banner - 기존 스타일 복구 */}
+      {/* Banner */}
       <div className="relative w-full h-96 overflow-hidden mt-20">
         <img
-          src={server.fileName 
-            ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.fileName}` 
-            : 'https://via.placeholder.com/1200x400'}
+          src={imageUrl}
           alt={server.name}
           className="w-full h-full object-cover object-top"
         />
@@ -80,9 +82,7 @@ export default function ServerDetailPage() {
             <div className="flex items-end gap-6">
               <div className="w-32 h-32 bg-white rounded-2xl p-4 shadow-2xl flex-shrink-0">
                 <img
-                  src={server.fileName 
-                    ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.fileName}` 
-                    : 'https://public.readdy.ai/ai/img_res/e131358c-8d1e-4f3d-ab52-30b4e08151d5.png'}
+                  src={imageUrl}
                   alt={server.name}
                   className="w-full h-full object-contain"
                 />
@@ -98,9 +98,10 @@ export default function ServerDetailPage() {
                     {(server.status || 'OFFLINE').toUpperCase()}
                   </span>
                 </div>
-                <p className="text-lg text-gray-200 mb-3">{server.description?.slice(0, 100)}...</p>
+                <p className="text-lg text-gray-200 mb-3 line-clamp-2">{server.description}</p>
                 <div className="flex flex-wrap gap-2">
-                  {(server.tags || ['Minecraft']).map((tag, index) => (
+                  {/* 카테고리 데이터 출력 */}
+                  {(server.categories && server.categories.length > 0 ? server.categories : ['Minecraft']).map((tag, index) => (
                     <span key={index} className="px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-lg">
                       {tag}
                     </span>
@@ -150,12 +151,11 @@ export default function ServerDetailPage() {
                     </div>
                   </div>
                 )}
-                {/* 다른 탭 데이터는 백엔드 확장에 따라 추가 가능 */}
               </div>
             </div>
           </div>
 
-          {/* Sidebar - 기존 스타일 복구 */}
+          {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-md p-6 sticky top-24">
               <h3 className="text-xl font-bold text-gray-900 mb-6">서버 정보</h3>
