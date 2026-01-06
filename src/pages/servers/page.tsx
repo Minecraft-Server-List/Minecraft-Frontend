@@ -48,17 +48,19 @@ export default function ServersPage() {
   }, []);
 
   const filteredServers = allServers.filter(server => {
-    const matchesSearch = (server.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (server.description || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // 카테고리 리스트에 선택된 카테고리가 포함되어 있는지 확인
-    const matchesCategory = selectedCategory === 'all' || 
-                           (server.categories || []).some(cat => cat.toLowerCase() === selectedCategory.toLowerCase());
-    
-    const matchesVersion = selectedVersion === 'all' || server.version === selectedVersion;
-    
-    return matchesSearch && matchesCategory && matchesVersion;
-  });
+  const matchesSearch = (server.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                       (server.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+  
+  const matchesCategory = 
+    selectedCategory === 'all' ||
+    (server.categories || []).some(cat => 
+      cat.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  
+  const matchesVersion = selectedVersion === 'all' || server.version === selectedVersion;
+  
+  return matchesSearch && matchesCategory && matchesVersion;
+});
 
   const sortedServers = [...filteredServers].sort((a, b) => {
     switch (sortBy) {
