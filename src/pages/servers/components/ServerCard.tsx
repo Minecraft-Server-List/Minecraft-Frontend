@@ -25,9 +25,9 @@ export default function ServerCard({ server }: ServerCardProps) {
   const playerPercentage = (current / max) * 100;
 
   const serverImg = server.fileName 
-    ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.fileName}` 
+    ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` 
     : 'https://via.placeholder.com/400x300?text=Minecraft+Server';
-
+    
   return (
     <Link
       to={`/servers/${server.serverId}`}
