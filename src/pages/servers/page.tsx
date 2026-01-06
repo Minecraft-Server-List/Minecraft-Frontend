@@ -6,19 +6,18 @@ import Footer from './components/Footer';
 import ServerCard from './components/ServerCard';
 import FilterSidebar from './components/FilterSidebar';
 
-// [리팩토링] SQL 쿼리문 컬럼명에 맞춘 인터페이스
 interface MinecraftServer {
-  serverId: number;       // server_id
-  name: string;           // name
-  description: string;    // description
-  status: 'ONLINE' | 'OFFLINE'; // status
-  version: string;        // version
-  domain: string;         // domain
-  currentPlayers: number; // current_players (CamelCase)
-  maxPlayers: number;     // max_players
-  votes: number;          // likes_count 테이블 연동 데이터
-  fileName?: string;      // server_image 테이블 연동 데이터
-  category?: string;      // server_category Join 데이터
+  serverId: number;
+  name: string;
+  description: string;
+  status: 'ONLINE' | 'OFFLINE';
+  version: string;
+  domain: string;
+  currentPlayers: number;
+  maxPlayers: number;
+  votes: number;
+  fileName?: string;
+  categories?: string[]; // DTO의 List<String> 대응
 }
 
 export default function ServersPage() {
@@ -33,12 +32,10 @@ export default function ServersPage() {
   const [allServers, setAllServers] = useState<MinecraftServer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. 백엔드 데이터 가져오기
   useEffect(() => {
     const fetchServers = async () => {
       try {
         setIsLoading(true);
-        // 전체 서버 목록을 가져옵니다.
         const response = await api.get('/api/servers');
         setAllServers(response.data);
       } catch (error) {
@@ -47,22 +44,22 @@ export default function ServersPage() {
         setIsLoading(false);
       }
     };
-
     fetchServers();
   }, []);
 
-  // 2. [리팩토링] 필터링 로직 - SQL 필드명에 맞게 안전하게 수정
   const filteredServers = allServers.filter(server => {
     const matchesSearch = (server.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (server.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // 카테고리 리스트에 선택된 카테고리가 포함되어 있는지 확인
     const matchesCategory = selectedCategory === 'all' || 
-                           (server.category || '').toLowerCase() === selectedCategory.toLowerCase();
+                           (server.categories || []).some(cat => cat.toLowerCase() === selectedCategory.toLowerCase());
+    
     const matchesVersion = selectedVersion === 'all' || server.version === selectedVersion;
     
     return matchesSearch && matchesCategory && matchesVersion;
   });
 
-  // 3. [리팩토링] 정렬 로직 - currentPlayers 등 변경된 필드 적용
   const sortedServers = [...filteredServers].sort((a, b) => {
     switch (sortBy) {
       case 'popular':
@@ -80,7 +77,6 @@ export default function ServersPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Header - 스타일 유지 */}
       <div className="bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -121,6 +117,7 @@ export default function ServersPage() {
               setSelectedCategory={setSelectedCategory}
               selectedVersion={selectedVersion}
               setSelectedVersion={setSelectedVersion}
+              serverCount={allServers.length}
             />
           </div>
 
@@ -139,7 +136,7 @@ export default function ServersPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 outline-none hover:border-gray-400"
+                  className="px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 outline-none hover:border-gray-400 cursor-pointer"
                 >
                   <option value="popular">인기순</option>
                   <option value="votes">투표순</option>
@@ -155,17 +152,16 @@ export default function ServersPage() {
                   setSelectedCategory={setSelectedCategory}
                   selectedVersion={selectedVersion}
                   setSelectedVersion={setSelectedVersion}
+                  serverCount={allServers.length}
                 />
               </div>
             )}
 
-            {/* Server Grid */}
             {isLoading ? (
-              <div className="text-center py-20 text-gray-500">데이터를 야미하게 불러오는 중...</div>
+              <div className="text-center py-20 text-gray-500">데이터를 불러오는 중...</div>
             ) : sortedServers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {sortedServers.map((server) => (
-                  /* [리팩토링] key값을 SQL PK인 serverId로 매핑 */
                   <ServerCard key={server.serverId} server={server} />
                 ))}
               </div>
