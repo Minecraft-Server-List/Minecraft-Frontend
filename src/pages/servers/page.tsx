@@ -25,7 +25,6 @@ export default function ServersPage() {
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedVersion, setSelectedVersion] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [showFilters, setShowFilters] = useState(false);
   
@@ -37,7 +36,19 @@ export default function ServersPage() {
       try {
         setIsLoading(true);
         const response = await api.get('/api/servers');
-        setAllServers(response.data);
+        const data = response.data;
+        if (Array.isArray(data)) {
+          setAllServers(data as MinecraftServer[]);
+        } else if (Array.isArray(data?.content)) {
+          setAllServers(data.content as MinecraftServer[]);
+        } else if (Array.isArray(data?.data)) {
+          setAllServers(data.data as MinecraftServer[]);
+        } else if (Array.isArray(data?.servers)) {
+          setAllServers(data.servers as MinecraftServer[]);
+        } else {
+          console.error('서버 목록 응답이 배열이 아닙니다:', data);
+          setAllServers([]);
+        }
       } catch (error) {
         console.error("서버 목록 로딩 실패:", error);
       } finally {
@@ -57,9 +68,8 @@ export default function ServersPage() {
       cat.toLowerCase() === selectedCategory.toLowerCase()
     );
   
-  const matchesVersion = selectedVersion === 'all' || server.version === selectedVersion;
   
-  return matchesSearch && matchesCategory && matchesVersion;
+  return matchesSearch && matchesCategory;
 });
 
   const sortedServers = [...filteredServers].sort((a, b) => {
@@ -117,8 +127,6 @@ export default function ServersPage() {
             <FilterSidebar
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              selectedVersion={selectedVersion}
-              setSelectedVersion={setSelectedVersion}
               serverCount={allServers.length}
             />
           </div>
@@ -152,8 +160,6 @@ export default function ServersPage() {
                 <FilterSidebar
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
-                  selectedVersion={selectedVersion}
-                  setSelectedVersion={setSelectedVersion}
                   serverCount={allServers.length}
                 />
               </div>
