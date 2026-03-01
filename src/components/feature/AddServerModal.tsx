@@ -24,9 +24,6 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
-
-  if (!isOpen) return null;
-
   const [availableCategories, setAvailableCategories] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
@@ -41,14 +38,13 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
         else if (Array.isArray(raw?.categories)) arr = raw.categories;
 
         const formatted = arr.map((cat: any) => ({
-          id: Number(cat.category_id ?? cat.id ?? cat.categoryId ?? cat.categoryId ?? cat),
+          id: Number(cat.category_id ?? cat.id ?? cat.categoryId ?? cat),
           name: String(cat.name ?? cat.label ?? cat.title ?? cat),
         }));
 
         setAvailableCategories(formatted.filter(c => !Number.isNaN(c.id)));
       } catch (error) {
         console.error('카테고리 로드 실패 (AddServerModal):', error);
-        // fallback to some defaults
         setAvailableCategories([
           { id: 1, name: 'Survival' },
           { id: 2, name: 'Creative' },
@@ -58,6 +54,8 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
     };
     fetchCategories();
   }, []);
+
+  if (!isOpen) return null;
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
