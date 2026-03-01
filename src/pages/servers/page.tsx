@@ -38,13 +38,42 @@ export default function ServersPage() {
         const response = await api.get('/api/servers');
         const data = response.data;
         if (Array.isArray(data)) {
-          setAllServers(data as MinecraftServer[]);
+          // normalize server objects to ensure categories is string[] and serverId exists
+          const normalized = (data as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id ?? s.serverId,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
         } else if (Array.isArray(data?.content)) {
-          setAllServers(data.content as MinecraftServer[]);
+          const normalized = (data.content as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
         } else if (Array.isArray(data?.data)) {
-          setAllServers(data.data as MinecraftServer[]);
+          const normalized = (data.data as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
         } else if (Array.isArray(data?.servers)) {
-          setAllServers(data.servers as MinecraftServer[]);
+          const normalized = (data.servers as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
         } else {
           console.error('서버 목록 응답이 배열이 아닙니다:', data);
           setAllServers([]);

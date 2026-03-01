@@ -19,10 +19,16 @@ export default function FilterSidebar({
     const fetchCategories = async () => {
       try {
         const response = await api.get('/api/categories');
-        // [{categoryId: 1, name: 'RPG'}] -> [{id: 'RPG', name: 'RPG'}] 변환
-        const formatted = response.data.map((cat: any) => ({
-          id: cat.name, 
-          name: cat.name
+        const raw = response.data;
+        let arr: any[] = [];
+        if (Array.isArray(raw)) arr = raw;
+        else if (Array.isArray(raw?.data)) arr = raw.data;
+        else if (Array.isArray(raw?.content)) arr = raw.content;
+        else if (Array.isArray(raw?.categories)) arr = raw.categories;
+
+        const formatted = arr.map((cat: any) => ({
+          id: String(cat.name ?? cat.id ?? cat.category_id ?? cat.categoryId ?? cat.categoryId ?? cat.categoryId ?? cat.categoryId ?? cat),
+          name: String(cat.name ?? cat.label ?? cat.title ?? cat.id ?? cat.category_id ?? cat),
         }));
         setDbCategories([{ id: 'all', name: '전체' }, ...formatted]);
       } catch (error) {
