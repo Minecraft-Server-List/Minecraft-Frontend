@@ -202,10 +202,19 @@ export default function ServerDetailPage() {
                   <span className="text-sm text-gray-600">버전</span>
                   <span className="text-sm font-bold text-gray-900">{server.version}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-600">총 투표</span>
-                  <span className="text-sm font-bold text-gray-900">{(server.likeCount || 0).toLocaleString()}</span>
-                </div>
+                {server.discord && (
+                  <div className="py-2">
+                    <a
+                      href={server.discord}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                      <i className="ri-discord-line text-lg"></i>
+                      Discord 참여
+                    </a>
+                  </div>
+                )}
               </div>
 
               <button className="w-full py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors">
