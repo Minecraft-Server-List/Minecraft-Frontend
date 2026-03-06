@@ -142,7 +142,7 @@ export default function Home() {
                   <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                     <div className="relative w-full h-56 overflow-hidden">
                       <img 
-                        src={server.imageUrl ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.imageUrl}` : 'https://via.placeholder.com/400x300'} 
+                        src={server.imageUrl ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${server.imageUrl}` : 'https://placehold.co/400x300/22c55e/ffffff?text=Minecraft+Server'} 
                         alt={server.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
