@@ -17,6 +17,8 @@ interface MinecraftServer {
   maxPlayers: number;
   votes: number;
   fileName?: string;
+  representativeImageUrl?: string;
+  imageUrls?: string[];
   categories?: string[]; // DTO의 List<String> 대응
 }
 
@@ -25,7 +27,6 @@ export default function ServersPage() {
   
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedVersion, setSelectedVersion] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [showFilters, setShowFilters] = useState(false);
   
@@ -37,7 +38,48 @@ export default function ServersPage() {
       try {
         setIsLoading(true);
         const response = await api.get('/api/servers');
-        setAllServers(response.data);
+        const data = response.data.data; // API 응답 구조에 맞게 수정
+        if (Array.isArray(data)) {
+          // normalize server objects to ensure categories is string[] and serverId exists
+          const normalized = (data as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id ?? s.serverId,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
+        } else if (Array.isArray(data?.content)) {
+          const normalized = (data.content as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
+        } else if (Array.isArray(data?.data)) {
+          const normalized = (data.data as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
+        } else if (Array.isArray(data?.servers)) {
+          const normalized = (data.servers as any[]).map((s) => ({
+            ...s,
+            serverId: s.serverId ?? s.id ?? s.server_id,
+            categories: (s.categories || s.tags || s.categoryList || []).map((c: any) =>
+              typeof c === 'string' ? c : (c.name ?? String(c.category_id ?? c.id ?? c.categoryId ?? ''))
+            ),
+          }));
+          setAllServers(normalized as MinecraftServer[]);
+        } else {
+          console.error('서버 목록 응답이 배열이 아닙니다:', data);
+          setAllServers([]);
+        }
       } catch (error) {
         console.error("서버 목록 로딩 실패:", error);
       } finally {
@@ -57,9 +99,8 @@ export default function ServersPage() {
       cat.toLowerCase() === selectedCategory.toLowerCase()
     );
   
-  const matchesVersion = selectedVersion === 'all' || server.version === selectedVersion;
   
-  return matchesSearch && matchesCategory && matchesVersion;
+  return matchesSearch && matchesCategory;
 });
 
   const sortedServers = [...filteredServers].sort((a, b) => {
@@ -117,8 +158,6 @@ export default function ServersPage() {
             <FilterSidebar
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              selectedVersion={selectedVersion}
-              setSelectedVersion={setSelectedVersion}
               serverCount={allServers.length}
             />
           </div>
@@ -152,8 +191,6 @@ export default function ServersPage() {
                 <FilterSidebar
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
-                  selectedVersion={selectedVersion}
-                  setSelectedVersion={setSelectedVersion}
                   serverCount={allServers.length}
                 />
               </div>
