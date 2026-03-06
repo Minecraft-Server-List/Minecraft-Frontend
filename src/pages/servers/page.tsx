@@ -17,6 +17,8 @@ interface MinecraftServer {
   maxPlayers: number;
   votes: number;
   fileName?: string;
+  representativeImageUrl?: string;
+  imageUrls?: string[];
   categories?: string[]; // DTO의 List<String> 대응
 }
 
@@ -36,7 +38,7 @@ export default function ServersPage() {
       try {
         setIsLoading(true);
         const response = await api.get('/api/servers');
-        const data = response.data;
+        const data = response.data.data; // API 응답 구조에 맞게 수정
         if (Array.isArray(data)) {
           // normalize server objects to ensure categories is string[] and serverId exists
           const normalized = (data as any[]).map((s) => ({

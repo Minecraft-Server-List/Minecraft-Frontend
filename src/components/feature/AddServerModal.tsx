@@ -30,25 +30,21 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
     const fetchCategories = async () => {
       try {
         const response = await api.get('/api/categories');
-        const raw = response.data;
-        let arr: any[] = [];
-        if (Array.isArray(raw)) arr = raw;
-        else if (Array.isArray(raw?.data)) arr = raw.data;
-        else if (Array.isArray(raw?.content)) arr = raw.content;
-        else if (Array.isArray(raw?.categories)) arr = raw.categories;
-
-        const formatted = arr.map((cat: any) => ({
-          id: Number(cat.category_id ?? cat.id ?? cat.categoryId ?? cat),
-          name: String(cat.name ?? cat.label ?? cat.title ?? cat),
+        const categories = response.data; // 직접 배열
+        
+        const formatted = categories.map((cat: any) => ({
+          id: cat.categoryId,
+          name: cat.name,
         }));
 
-        setAvailableCategories(formatted.filter(c => !Number.isNaN(c.id)));
+        setAvailableCategories(formatted);
       } catch (error) {
         console.error('카테고리 로드 실패 (AddServerModal):', error);
         setAvailableCategories([
-          { id: 1, name: 'Survival' },
-          { id: 2, name: 'Creative' },
-          { id: 3, name: 'PvP' },
+          { id: 1, name: 'RPG' },
+          { id: 2, name: '야생' },
+          { id: 3, name: '마인팜' },
+          { id: 4, name: '건축' },
         ]);
       }
     };
@@ -84,13 +80,51 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      console.log('Submit server:', formData);
-      onClose();
+      try {
+        // FormData 생성 (multipart/form-data)
+        const submitFormData = new FormData();
+        
+        // ServerRequestDto 객체 생성
+        const serverData = {
+          name: formData.serverName,
+          description: formData.description,
+          domain: formData.serverIP,
+          version: formData.version,
+          categoryIds: formData.categories
+        };
+        
+        // server 데이터를 JSON 문자열로 추가
+        submitFormData.append('server', new Blob([JSON.stringify(serverData)], {
+          type: 'application/json'
+        }));
+        
+        // 파일들 추가
+        if (formData.bannerImage) {
+          submitFormData.append('files', formData.bannerImage);
+        }
+        if (formData.logoImage) {
+          submitFormData.append('files', formData.logoImage);
+        }
+        
+        // API 호출
+        const response = await api.post('/api/servers', submitFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        console.log('서버 등록 성공:', response.data);
+        alert('서버가 성공적으로 등록되었습니다!');
+        onClose();
+      } catch (error) {
+        console.error('서버 등록 실패:', error);
+        alert('서버 등록에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
 
@@ -418,7 +452,11 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
 
             <button
               type="submit"
-              disabled={currentStep === 3 && formData.categories.length === 0}
+              disabled={
+                (currentStep === 1 && (!formData.serverName || !formData.serverIP || !formData.version)) ||
+                (currentStep === 2 && !formData.description) ||
+                (currentStep === 3 && formData.categories.length === 0)
+              }
               className="px-8 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {currentStep === 3 ? '서버 등록하기' : '다음'}
