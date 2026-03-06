@@ -53,18 +53,76 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
 
   if (!isOpen) return null;
 
-  const handleImageChange = (
+  // 이미지 압축 함수
+  const compressImage = (file: File, maxSizeMB: number = 2): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // 이미지 크기 조정 (2MB 이하로 압축)
+        const maxWidth = 1920;
+        const maxHeight = 1080;
+        let { width, height } = img;
+        
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error('이미지 압축 실패'));
+          }
+        }, 'image/jpeg', 0.8); // 80% 품질로 압축
+      };
+      
+      img.onerror = () => reject(new Error('이미지 로드 실패'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: 'banner' | 'logo'
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const previewUrl = URL.createObjectURL(file);
-    if (type === 'banner') {
-      setFormData(prev => ({ ...prev, bannerImage: file, bannerPreview: previewUrl }));
-    } else {
-      setFormData(prev => ({ ...prev, logoImage: file, logoPreview: previewUrl }));
+    // 파일 크기 검증 (10MB 제한)
+    const maxSizeMB = 10;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      alert(`이미지 크기는 ${maxSizeMB}MB 이하여야 합니다.`);
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    try {
+      // 이미지 압축
+      const compressedFile = await compressImage(file, 2);
+      const previewUrl = URL.createObjectURL(compressedFile);
+      
+      if (type === 'banner') {
+        setFormData(prev => ({ ...prev, bannerImage: compressedFile, bannerPreview: previewUrl }));
+      } else {
+        setFormData(prev => ({ ...prev, logoImage: compressedFile, logoPreview: previewUrl }));
+      }
+    } catch (error) {
+      console.error('이미지 처리 오류:', error);
+      alert('이미지 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -121,9 +179,14 @@ export default function AddServerModal({ isOpen, onClose }: AddServerModalProps)
         console.log('서버 등록 성공:', response.data);
         alert('서버가 성공적으로 등록되었습니다!');
         onClose();
-      } catch (error) {
+      } catch (error: any) {
         console.error('서버 등록 실패:', error);
-        alert('서버 등록에 실패했습니다. 다시 시도해주세요.');
+        
+        if (error.response?.status === 413) {
+          alert('이미지 파일이 너무 큽니다. 더 작은 이미지를 사용해주세요.');
+        } else {
+          alert('서버 등록에 실패했습니다. 다시 시도해주세요.');
+        }
       }
     }
   };
