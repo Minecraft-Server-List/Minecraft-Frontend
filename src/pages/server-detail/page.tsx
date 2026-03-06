@@ -15,6 +15,8 @@ interface ServerDetail {
   version: string;
   status: string;
   fileName?: string;    // DTO의 fileName 필드와 매칭
+  representativeImageUrl?: string;
+  imageUrls?: string[];
   likeCount?: number;   
   categories?: string[]; // DTO의 categories (List<String>)와 매칭
   website?: string;
@@ -37,7 +39,7 @@ export default function ServerDetailPage() {
       try {
         setIsLoading(true);
         const response = await api.get(`/api/servers/${id}`);
-        setServer(response.data);
+        setServer(response.data.data); // API 응답 구조에 맞게 수정
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
       } finally {
@@ -59,10 +61,15 @@ export default function ServerDetailPage() {
 
   const playerPercentage = ((server.currentPlayers || 0) / (server.maxPlayers || 1)) * 100;
 
-  // 🔥 이미지 경로를 유시영 님의 백엔드 설정(/images/)에 맞춤
-  const imageUrl = server.fileName 
-    ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` 
-    : 'https://via.placeholder.com/1200x400';
+  // 배경 이미지: representativeImageUrl 사용
+  const backgroundImageUrl = server.representativeImageUrl
+    || (server.fileName ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` : null)
+    || 'https://placehold.co/1200x400/22c55e/ffffff?text=Minecraft+Banner';
+
+  // 로고 이미지: imageUrls의 두 번째 이미지 사용
+  const logoImageUrl = (server.imageUrls && server.imageUrls[1])
+    || (server.fileName ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` : null)
+    || 'https://placehold.co/128x128/22c55e/ffffff?text=Logo';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,7 +78,7 @@ export default function ServerDetailPage() {
       {/* Banner */}
       <div className="relative w-full h-96 overflow-hidden mt-20">
         <img
-          src={imageUrl}
+          src={backgroundImageUrl}
           alt={server.name}
           className="w-full h-full object-cover object-top"
         />
@@ -82,7 +89,7 @@ export default function ServerDetailPage() {
             <div className="flex items-end gap-6">
               <div className="w-32 h-32 bg-white rounded-2xl p-4 shadow-2xl flex-shrink-0">
                 <img
-                  src={imageUrl}
+                  src={logoImageUrl}
                   alt={server.name}
                   className="w-full h-full object-contain"
                 />
