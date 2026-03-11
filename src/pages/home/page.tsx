@@ -5,6 +5,7 @@ import LoginModal from '@/components/feature/LoginModal';
 import AddServerModal from '@/components/feature/AddServerModal';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
+import { useServerSearch } from '../../hooks/useServerSearch';
 
 interface MinecraftServer {
   serverId: number;
@@ -17,7 +18,7 @@ interface MinecraftServer {
 }
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchQuery, setSearchQuery, navigateToServers, handleKeyPress } = useServerSearch();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showAddServerModal, setShowAddServerModal] = useState(false);
   
@@ -41,20 +42,6 @@ export default function Home() {
     };
     fetchHomeData();
   }, []);
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      window.location.href = `/servers?search=${encodeURIComponent(searchQuery)}`;
-    } else {
-      window.location.href = '/servers';
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -85,7 +72,7 @@ export default function Home() {
                 className="flex-1 px-4 py-3 text-base text-gray-900 placeholder-gray-500 outline-none"
               />
               <button 
-                onClick={handleSearch}
+                onClick={() => navigateToServers()}
                 className="px-8 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors whitespace-nowrap cursor-pointer"
               >
                 검색
