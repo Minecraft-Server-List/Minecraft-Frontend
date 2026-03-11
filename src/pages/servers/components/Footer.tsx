@@ -11,7 +11,7 @@ export default function Footer() {
                 alt="CraftConnect" 
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-xl font-bold text-white">CraftConnect</span>
+              <span className="text-xl font-bold text-white">마인허브</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               최고의 마인크래프트 서버를 발견하고 전 세계 플레이어들과 연결하세요.
@@ -51,12 +51,9 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-400">
-            © 2025 CraftConnect. All rights reserved.
+            © 2025 마인허브. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="https://readdy.ai/?origin=logo" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors cursor-pointer">
-              Powered by Readdy
-            </a>
             <div className="flex items-center gap-4">
               <a href="#" className="w-9 h-9 flex items-center justify-center bg-gray-800 hover:bg-emerald-600 rounded-lg transition-colors cursor-pointer">
                 <i className="ri-twitter-x-line text-lg"></i>
