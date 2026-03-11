@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import LoginModal from '../../../components/feature/LoginModal';
-import AddServerModal from '../../../components/feature/AddServerModal';
+import LoginModal from '../feature/LoginModal';
+import AddServerModal from '../feature/AddServerModal';
 
 export default function Navbar() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -18,14 +18,14 @@ export default function Navbar() {
                 alt="CraftConnect Logo" 
                 className="w-10 h-10 object-contain"
               />
-              <span className="text-2xl font-bold text-gray-900">CraftConnect</span>
+              <span className="text-2xl font-bold text-gray-900">마인허브</span>
             </Link>
             
             <div className="hidden md:flex items-center gap-8">
-              <Link to="/servers" className="text-base text-emerald-600 font-medium hover:text-emerald-700 transition-colors whitespace-nowrap cursor-pointer">Servers</Link>
-              <Link to="/servers" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">Community</Link>
-              <a href="#news" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">News</a>
-              <a href="#support" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">Support</a>
+              <Link to="/servers" className="text-base text-emerald-600 font-medium hover:text-emerald-700 transition-colors whitespace-nowrap cursor-pointer">서버</Link>
+              <Link to="/servers" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">커뮤니티</Link>
+              <a href="#news" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">뉴스</a>
+              <a href="#support" className="text-base text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer">지원</a>
             </div>
 
             <div className="flex items-center gap-4">
@@ -33,13 +33,13 @@ export default function Navbar() {
                 onClick={() => setShowLoginModal(true)}
                 className="hidden md:block px-5 py-2.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors whitespace-nowrap cursor-pointer"
               >
-                Login
+                로그인
               </button>
               <button 
                 onClick={() => setShowAddServerModal(true)}
                 className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors whitespace-nowrap cursor-pointer"
               >
-                Add Server
+                서버 등록
               </button>
             </div>
           </div>
