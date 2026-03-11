@@ -102,10 +102,10 @@ export default function Home() {
         
         <div className="relative max-w-5xl mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Find Your Perfect Minecraft Server
+            완벽한 마인크래프트 서버를 찾아보세요
           </h1>
           <p className="text-xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Explore thousands of Minecraft servers and connect with players worldwide.
+            수천 개의 마인크래프트 서버를 탐색하고 전 세계 플레이어들과 연결하세요.
           </p>
 
           <div className="max-w-3xl mx-auto">
@@ -115,14 +115,14 @@ export default function Home() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Search for servers (e.g., survival, pvp, creative)"
+                placeholder="서버 검색 (예: 생존, 전투, 창조)"
                 className="flex-1 px-4 py-3 text-base text-gray-900 placeholder-gray-500 outline-none"
               />
               <button 
                 onClick={handleSearch}
                 className="px-8 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors whitespace-nowrap cursor-pointer"
               >
-                Search
+                검색
               </button>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function Home() {
       {/* Featured Servers */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-12">Featured Servers</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-12">추천 서버</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {isLoading ? (
               <div className="col-span-3 py-10">데이터 로딩 중...</div>
@@ -150,7 +150,7 @@ export default function Home() {
                     <div className="p-6 text-left">
                       <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-emerald-600">{server.name}</h3>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 font-medium">{server.currentPlayers.toLocaleString()} players</span>
+                        <span className="text-gray-600 font-medium">{server.currentPlayers.toLocaleString()}명 접속</span>
                         <span className="text-gray-600 font-medium">{server.version}</span>
                       </div>
                     </div>
@@ -165,7 +165,7 @@ export default function Home() {
       {/* Top Ranked Servers */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Top Ranked Servers</h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">인기 순위 서버</h2>
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
             {topServers.map((server, index) => (
               <div key={server.serverId} className="flex items-center gap-6 p-6 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
@@ -174,9 +174,9 @@ export default function Home() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{server.name}</h3>
-                  <div className="text-sm text-gray-600">{server.currentPlayers} / {server.maxPlayers} online</div>
+                  <div className="text-sm text-gray-600">{server.currentPlayers} / {server.maxPlayers} 접속중</div>
                 </div>
-                <Link to={`/servers/${server.serverId}`} className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700">Detail</Link>
+                <Link to={`/servers/${server.serverId}`} className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700">자세히 보기</Link>
               </div>
             ))}
           </div>
