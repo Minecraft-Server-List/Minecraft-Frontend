@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '@/api/axios'; 
 import LoginModal from '@/components/feature/LoginModal';
 import AddServerModal from '@/components/feature/AddServerModal';
-import Footer from '../servers/components/Footer';
+import Footer from '../../components/layout/Footer';
 
 interface MinecraftServer {
   serverId: number;

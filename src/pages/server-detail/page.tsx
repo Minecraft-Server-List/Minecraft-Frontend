@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '@/api/axios'; 
-import Navbar from '../servers/components/Navbar';
-import Footer from '../servers/components/Footer';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
 
 interface ServerDetail {
   serverId: number;

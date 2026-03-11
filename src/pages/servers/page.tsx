@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '@/api/axios'; 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Navbar from '../../components/layout/Navbar';
+import Footer from '../../components/layout/Footer';
 import ServerCard from './components/ServerCard';
 import FilterSidebar from './components/FilterSidebar';
 
