@@ -5,6 +5,7 @@ import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import ServerCard from './components/ServerCard';
 import FilterSidebar from './components/FilterSidebar';
+import { useServerSearch } from '../../hooks/useServerSearch';
 
 interface MinecraftServer {
   serverId: number;
@@ -24,8 +25,8 @@ interface MinecraftServer {
 
 export default function ServersPage() {
   const [searchParams] = useSearchParams();
+  const { searchQuery, setSearchQuery, clearSearch } = useServerSearch(searchParams.get('search') || '');
   
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [sortBy, setSortBy] = useState('popular');
   const [showFilters, setShowFilters] = useState(false);
@@ -141,7 +142,7 @@ export default function ServersPage() {
               />
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={clearSearch}
                   className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                 >
                   <i className="ri-close-line text-xl text-gray-500"></i>
