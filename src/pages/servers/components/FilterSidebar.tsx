@@ -4,16 +4,12 @@ import api from '@/api/axios';
 interface FilterSidebarProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
-  selectedVersion: string;
-  setSelectedVersion: (version: string) => void;
   serverCount?: number; // 부모로부터 받은 현재 서버 수
 }
 
 export default function FilterSidebar({
   selectedCategory,
   setSelectedCategory,
-  selectedVersion,
-  setSelectedVersion,
   serverCount
 }: FilterSidebarProps) {
   const [dbCategories, setDbCategories] = useState<{id: string, name: string}[]>([]);
@@ -23,10 +19,16 @@ export default function FilterSidebar({
     const fetchCategories = async () => {
       try {
         const response = await api.get('/api/categories');
-        // [{categoryId: 1, name: 'RPG'}] -> [{id: 'RPG', name: 'RPG'}] 변환
-        const formatted = response.data.map((cat: any) => ({
-          id: cat.name, 
-          name: cat.name
+        const raw = response.data;
+        let arr: any[] = [];
+        if (Array.isArray(raw)) arr = raw;
+        else if (Array.isArray(raw?.data)) arr = raw.data;
+        else if (Array.isArray(raw?.content)) arr = raw.content;
+        else if (Array.isArray(raw?.categories)) arr = raw.categories;
+
+        const formatted = arr.map((cat: any) => ({
+          id: String(cat.name ?? cat.id ?? cat.category_id ?? cat.categoryId ?? cat.categoryId ?? cat.categoryId ?? cat.categoryId ?? cat),
+          name: String(cat.name ?? cat.label ?? cat.title ?? cat.id ?? cat.category_id ?? cat),
         }));
         setDbCategories([{ id: 'all', name: '전체' }, ...formatted]);
       } catch (error) {
@@ -35,14 +37,6 @@ export default function FilterSidebar({
     };
     fetchCategories();
   }, []);
-
-  const versions = [
-    { id: 'all', name: '모든 버전' },
-    { id: '1.20.4', name: '1.20.4' },
-    { id: '1.20.1', name: '1.20.1' },
-    { id: '1.19.4', name: '1.19.4' },
-    { id: '1.18.2', name: '1.18.2' }
-  ];
 
   return (
     <div className="space-y-6">
@@ -62,29 +56,6 @@ export default function FilterSidebar({
             >
               <i className="ri-hashtag text-lg"></i>
               <span>{category.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Versions */}
-      <div className="bg-white rounded-xl p-5 shadow-md">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">버전</h3>
-        <div className="space-y-1">
-          {versions.map((version) => (
-            <button
-              key={version.id}
-              onClick={() => setSelectedVersion(version.id)}
-              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                selectedVersion === version.id
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span>{version.name}</span>
-              {selectedVersion === version.id && (
-                <i className="ri-check-line text-lg"></i>
-              )}
             </button>
           ))}
         </div>

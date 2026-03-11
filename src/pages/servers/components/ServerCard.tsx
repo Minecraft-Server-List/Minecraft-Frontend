@@ -9,6 +9,8 @@ interface Server {
   currentPlayers: number;
   maxPlayers: number;
   fileName?: string;
+  representativeImageUrl?: string;
+  imageUrls?: string[];
   votes?: number;
   categories?: string[];
   tags?: string[];
@@ -24,9 +26,10 @@ export default function ServerCard({ server }: ServerCardProps) {
   const max = server.maxPlayers || 1;
   const playerPercentage = (current / max) * 100;
 
-  const serverImg = server.fileName 
-    ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` 
-    : 'https://via.placeholder.com/400x300?text=Minecraft+Server';
+  const serverImg = server.representativeImageUrl // 대표 이미지 우선
+    || (server.imageUrls && server.imageUrls[1]) // 2번째 이미지
+    || (server.fileName ? `${import.meta.env.VITE_API_BASE_URL}/images/${server.fileName}` : null)
+    || 'https://placehold.co/400x300/22c55e/ffffff?text=Minecraft+Server';
     
   return (
     <Link
